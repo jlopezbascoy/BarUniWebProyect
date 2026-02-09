@@ -1,0 +1,31 @@
+# Dependencias
+node_modules/
+package-lock.json
+
+# Entorno y Configuración
+.env
+.env.*
+!.env.example
+
+# Base de Datos
+*.db
+*.sqlite
+backend/database/*.db
+backend/backups/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Cobertura de Tests
+coverage/
+backend/coverage/
+
+# IDE
+.vscode/
+.idea/

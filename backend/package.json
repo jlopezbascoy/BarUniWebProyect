@@ -1,0 +1,67 @@
+{
+  "name": "parrillada-alcume-backend",
+  "version": "1.0.0",
+  "description": "Backend seguro para sistema de reservas de Parrillada Alcume",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest",
+    "db:init": "node database/init.js",
+    "db:seed": "node database/seed.js",
+    "backup": "node scripts/backup.js",
+    "backup:list": "node scripts/backup.js list",
+    "backup:clean": "node scripts/backup.js clean",
+    "reminders": "node scripts/reminders.js",
+    "migrate": "node scripts/migrate.js"
+  },
+  "keywords": [
+    "restaurant",
+    "reservations",
+    "api",
+    "security",
+    "owasp"
+  ],
+  "author": "Parrillada Alcume",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "nodemailer": "^8.0.1",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.1",
+    "validator": "^13.11.0",
+    "winston": "^3.11.0",
+    "xss": "^1.0.14"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": ["<rootDir>/jest.setup.js"],
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/server.js"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "verbose": true,
+    "forceExit": true,
+    "detectOpenHandles": true,
+    "testTimeout": 10000
+  }
+}

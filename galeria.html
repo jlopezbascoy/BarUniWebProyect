@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Galería de imágenes de Parrillada Alcume. Descubre nuestros platos, instalaciones y ambiente único en A Coruña.">
+    <title>Galería - Parrillada Alcume</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="index.html" class="logo">Parrillada <span>Alcume</span></a>
+                <nav>
+                    <ul class="nav-menu" id="navMenu">
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="menu.html">Menú</a></li>
+                        <li><a href="galeria.html" class="active">Galería</a></li>
+                        <li><a href="reservas.html">Reservas</a></li>
+                        <li><a href="contacto.html">Contacto</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                    </ul>
+                </nav>
+                <div class="header-cta">
+                    <a href="tel:+34981234567" class="phone-link">
+                        <i class="fas fa-phone"></i>
+                        <span>+34 981 234 567</span>
+                    </a>
+                    <a href="reservas.html" class="btn btn-primary">Reservar</a>
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header gallery-header">
+        <div class="container">
+            <h1>Galería</h1>
+            <p>Descubre nuestros platos, instalaciones y momentos especiales</p>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery-section section-padding">
+        <div class="container">
+            <!-- Filter Buttons -->
+            <div class="gallery-filter">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="platos">Platos</button>
+                <button class="filter-btn" data-filter="ambiente">Ambiente</button>
+                <button class="filter-btn" data-filter="parrilla">Parrilla</button>
+                <button class="filter-btn" data-filter="eventos">Eventos</button>
+            </div>
+
+            <!-- Gallery Grid -->
+            <div class="gallery-grid" id="galleryGrid">
+                <div class="gallery-item" data-category="platos">
+                    <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=450&fit=crop" alt="Chuletón a la brasa">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="parrilla">
+                    <img src="https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=600&h=450&fit=crop" alt="Parrilla en acción">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="ambiente">
+                    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=450&fit=crop" alt="Interior del restaurante">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="platos">
+                    <img src="https://images.unsplash.com/photo-1558030006-4506719b7435?w=600&h=450&fit=crop" alt="Parrillada mixta">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="ambiente">
+                    <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&h=450&fit=crop" alt="Terraza exterior">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="platos">
+                    <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&h=450&fit=crop" alt="Costillas BBQ">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="eventos">
+                    <img src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=600&h=450&fit=crop" alt="Celebración en el restaurante">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="platos">
+                    <img src="https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=600&h=450&fit=crop" alt="Pulpo a la gallega">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="parrilla">
+                    <img src="https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=600&h=450&fit=crop" alt="Carne en la parrilla">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="ambiente">
+                    <img src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=600&h=450&fit=crop" alt="Detalle decoración">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="platos">
+                    <img src="https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600&h=450&fit=crop" alt="Postre casero">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-category="eventos">
+                    <img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&h=450&fit=crop" alt="Cena de grupo">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <span class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></span>
+            <img src="" alt="" id="lightboxImg">
+        </div>
+        <span class="lightbox-nav lightbox-prev" id="lightboxPrev"><i class="fas fa-chevron-left"></i></span>
+        <span class="lightbox-nav lightbox-next" id="lightboxNext"><i class="fas fa-chevron-right"></i></span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Parrillada <span>Alcume</span></h3>
+                    <p>Tradición y sabor gallego desde 1998. Especialistas en carnes a la brasa y cocina tradicional en A Coruña.</p>
+                    <div class="social-links">
+                        <a href="https://facebook.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://instagram.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://tripadvisor.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="TripAdvisor"><i class="fab fa-tripadvisor"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="menu.html">Menú</a></li>
+                        <li><a href="galeria.html">Galería</a></li>
+                        <li><a href="reservas.html">Reservas</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contacto</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Calle Real 123, 15001 A Coruña</p>
+                    <p><i class="fas fa-phone"></i> <a href="tel:+34981234567">+34 981 234 567</a></p>
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:info@parrilladaalcume.com">info@parrilladaalcume.com</a></p>
+                </div>
+                
+                <div class="footer-hours">
+                    <h4>Horario</h4>
+                    <p><i class="fas fa-clock"></i> Lunes - Jueves: 13:00 - 16:00, 20:00 - 23:00</p>
+                    <p><i class="fas fa-clock"></i> Viernes - Sábado: 13:00 - 16:00, 20:00 - 24:00</p>
+                    <p><i class="fas fa-clock"></i> Domingo: 13:00 - 16:00</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Parrillada Alcume. Todos los derechos reservados.</p>
+                <div class="footer-bottom-links">
+                    <a href="faq.html">Preguntas Frecuentes</a>
+                    <a href="contacto.html">Contacto</a>
+                    <a href="#">Política de Privacidad</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/galeria.js"></script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Reserva tu mesa en Parrillada Alcume. Sistema de reservas online rápido y sencillo. Parrilla tradicional en A Coruña.">
+    <title>Reservas - Parrillada Alcume</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="index.html" class="logo">Parrillada <span>Alcume</span></a>
+                <nav>
+                    <ul class="nav-menu" id="navMenu">
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="menu.html">Menú</a></li>
+                        <li><a href="galeria.html">Galería</a></li>
+                        <li><a href="reservas.html" class="active">Reservas</a></li>
+                        <li><a href="contacto.html">Contacto</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                    </ul>
+                </nav>
+                <div class="header-cta">
+                    <a href="tel:+34981234567" class="phone-link">
+                        <i class="fas fa-phone"></i>
+                        <span>+34 981 234 567</span>
+                    </a>
+                    <a href="reservas.html" class="btn btn-primary">Reservar</a>
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header reservation-header">
+        <div class="container">
+            <h1>Reserva Tu Mesa</h1>
+            <p>Reserva de forma rápida y sencilla. Te esperamos</p>
+        </div>
+    </section>
+
+    <!-- Reservation Section -->
+    <section class="reservation-section section-padding">
+        <div class="container">
+            <div class="reservation-container">
+                <!-- Reservation Info -->
+                <div class="reservation-info">
+                    <h2>Información de Reserva</h2>
+                    <p>Reserva tu mesa de forma sencilla y recibe confirmación inmediata. Para grupos de más de 10 personas o eventos especiales, por favor contáctanos directamente.</p>
+                    
+                    <div class="reservation-details">
+                        <div class="reservation-detail-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h4>Horario de Reservas</h4>
+                                <p>Comidas: 13:00 - 16:00<br>Cenas: 20:00 - 23:00</p>
+                            </div>
+                        </div>
+                        
+                        <div class="reservation-detail-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <h4>Capacidad</h4>
+                                <p>Reservas de 1 a 10 personas online.<br>Para grupos mayores, llámanos.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="reservation-detail-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <div>
+                                <h4>Antelación</h4>
+                                <p>Puedes reservar con hasta 30 días de antelación.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="reservation-detail-item">
+                            <i class="fas fa-phone-alt"></i>
+                            <div>
+                                <h4>Teléfono</h4>
+                                <p>+34 981 234 567</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2901.2345678901234!2d-8.3969!3d43.3709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDIyJzE1LjIiTiA4wrAyMyc0OC44Ilc!5e0!3m2!1ses!2ses!4v1234567890" 
+                            width="100%" 
+                            height="300" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy"
+                            title="Ubicación Parrillada Alcume"
+                            sandbox="allow-scripts allow-same-origin allow-popups">
+                        </iframe>
+                        <p class="map-note"><i class="fas fa-info-circle"></i> Calle Real 123, 15001 A Coruña</p>
+                    </div>
+                </div>
+                
+                <!-- Consultar/Cancelar Reserva -->
+                <div class="reservation-info">
+                    <h2>Gestionar Reserva</h2>
+                    <p>¿Ya tienes una reserva? Introduce tu código para consultar o cancelar.</p>
+                    
+                    <div class="manage-reservation-form">
+                        <div class="form-group">
+                            <label for="codigoConsulta">Código de Reserva</label>
+                            <input type="text" id="codigoConsulta" placeholder="Ej: ALC-ABC123-DEF">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="buscarReserva()">
+                            <i class="fas fa-search"></i> Buscar Reserva
+                        </button>
+                    </div>
+                    
+                    <!-- Resultado de búsqueda -->
+                    <div id="reservaInfo" class="reserva-info" style="display: none;">
+                        <h3>Detalles de tu Reserva</h3>
+                        <div id="reservaDetalles"></div>
+                        <button type="button" class="btn btn-danger" onclick="mostrarCancelacion()">
+                            <i class="fas fa-times"></i> Cancelar Reserva
+                        </button>
+                    </div>
+                    
+                    <!-- Formulario de cancelación -->
+                    <div id="cancelacionForm" class="cancelacion-form" style="display: none;">
+                        <h3>Cancelar Reserva</h3>
+                        <div class="form-group">
+                            <label for="motivoCancelacion">Motivo (opcional)</label>
+                            <textarea id="motivoCancelacion" placeholder="Indica el motivo de la cancelación..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="ocultarCancelacion()">Volver</button>
+                            <button type="button" class="btn btn-danger" onclick="confirmarCancelacion()">
+                                <i class="fas fa-trash"></i> Confirmar Cancelación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reservation Form -->
+                <div class="reservation-form-container">
+                    <form class="reservation-form" id="reservationForm">
+                        <h3>Haz Tu Reserva</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nombre">Nombre *</label>
+                                <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre">
+                            </div>
+                            <div class="form-group">
+                                <label for="apellidos">Apellidos *</label>
+                                <input type="text" id="apellidos" name="apellidos" required placeholder="Tus apellidos">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required placeholder="tu@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono">Teléfono *</label>
+                                <input type="tel" id="telefono" name="telefono" required placeholder="+34 981 234 567">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fecha">Fecha *</label>
+                                <input type="date" id="fecha" name="fecha" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hora">Hora *</label>
+                                <select id="hora" name="hora" required>
+                                    <option value="">Selecciona hora</option>
+                                    <optgroup label="Comidas">
+                                        <option value="13:00">13:00</option>
+                                        <option value="13:30">13:30</option>
+                                        <option value="14:00">14:00</option>
+                                        <option value="14:30">14:30</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="15:30">15:30</option>
+                                    </optgroup>
+                                    <optgroup label="Cenas">
+                                        <option value="20:00">20:00</option>
+                                        <option value="20:30">20:30</option>
+                                        <option value="21:00">21:00</option>
+                                        <option value="21:30">21:30</option>
+                                        <option value="22:00">22:00</option>
+                                        <option value="22:30">22:30</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="personas">Número de personas *</label>
+                                <select id="personas" name="personas" required>
+                                    <option value="">Selecciona</option>
+                                    <option value="1">1 persona</option>
+                                    <option value="2">2 personas</option>
+                                    <option value="3">3 personas</option>
+                                    <option value="4">4 personas</option>
+                                    <option value="5">5 personas</option>
+                                    <option value="6">6 personas</option>
+                                    <option value="7">7 personas</option>
+                                    <option value="8">8 personas</option>
+                                    <option value="9">9 personas</option>
+                                    <option value="10">10 personas</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="ubicacion">Ubicación preferida</label>
+                                <select id="ubicacion" name="ubicacion">
+                                    <option value="indiferente">Sin preferencia</option>
+                                    <option value="interior">Interior</option>
+                                    <option value="terraza">Terraza</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ocasion">Ocasión especial</label>
+                            <select id="ocasion" name="ocasion">
+                                <option value="">Ninguna</option>
+                                <option value="cumpleanos">Cumpleaños</option>
+                                <option value="aniversario">Aniversario</option>
+                                <option value="negocios">Comida de negocios</option>
+                                <option value="familia">Reunión familiar</option>
+                                <option value="romantica">Cena romántica</option>
+                                <option value="otra">Otra</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="alergias">Alergias o intolerancias alimentarias</label>
+                            <textarea id="alergias" name="alergias" placeholder="Indica si tienes alguna alergia o intolerancia alimentaria..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="comentarios">Comentarios adicionales</label>
+                            <textarea id="comentarios" name="comentarios" placeholder="¿Hay algo más que debamos saber?"></textarea>
+                        </div>
+                        
+                        <!-- Honeypot anti-spam (campo oculto) -->
+                        <div class="form-group" style="display: none !important; visibility: hidden !important; opacity: 0 !important; position: absolute !important; left: -9999px !important;">
+                            <label for="website">No completar este campo</label>
+                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="politica" name="politica" required>
+                                <label for="politica">He leído y acepto la <a href="privacidad.html" target="_blank">política de privacidad</a> y el tratamiento de mis datos para la gestión de la reserva. *</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="notificaciones" name="notificaciones">
+                                <label for="notificaciones">Deseo recibir recordatorios y notificaciones sobre mi reserva por email/SMS.</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-calendar-check"></i> Confirmar Reserva
+                        </button>
+                    </form>
+                    
+                    <!-- Success Message -->
+                    <div class="reservation-success" id="reservationSuccess">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>¡Reserva Confirmada!</h3>
+                        <p>Hemos recibido tu reserva correctamente. Te hemos enviado un email de confirmación con todos los detalles.</p>
+                        <p><strong>Código de reserva: <span id="codigoReserva"></span></strong></p>
+                        <a href="index.html" class="btn btn-primary">Volver al Inicio</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Parrillada <span>Alcume</span></h3>
+                    <p>Tradición y sabor gallego desde 1998. Especialistas en carnes a la brasa y cocina tradicional en A Coruña.</p>
+                    <div class="social-links">
+                        <a href="https://facebook.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://instagram.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://tripadvisor.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="TripAdvisor"><i class="fab fa-tripadvisor"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="menu.html">Menú</a></li>
+                        <li><a href="galeria.html">Galería</a></li>
+                        <li><a href="reservas.html">Reservas</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contacto</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Calle Real 123, 15001 A Coruña</p>
+                    <p><i class="fas fa-phone"></i> <a href="tel:+34981234567">+34 981 234 567</a></p>
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:info@parrilladaalcume.com">info@parrilladaalcume.com</a></p>
+                </div>
+                
+                <div class="footer-hours">
+                    <h4>Horario</h4>
+                    <p><i class="fas fa-clock"></i> Lunes - Jueves: 13:00 - 16:00, 20:00 - 23:00</p>
+                    <p><i class="fas fa-clock"></i> Viernes - Sábado: 13:00 - 16:00, 20:00 - 24:00</p>
+                    <p><i class="fas fa-clock"></i> Domingo: 13:00 - 16:00</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Parrillada Alcume. Todos los derechos reservados.</p>
+                <div class="footer-bottom-links">
+                    <a href="faq.html">Preguntas Frecuentes</a>
+                    <a href="contacto.html">Contacto</a>
+                    <a href="#">Política de Privacidad</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/reservas.js"></script>
+</body>
+</html>

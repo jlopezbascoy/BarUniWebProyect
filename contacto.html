@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contacta con Parrillada Alcume. Teléfono, email, dirección y horario. Estamos en el centro de A Coruña.">
+    <title>Contacto - Parrillada Alcume</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="index.html" class="logo">Parrillada <span>Alcume</span></a>
+                <nav>
+                    <ul class="nav-menu" id="navMenu">
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="menu.html">Menú</a></li>
+                        <li><a href="galeria.html">Galería</a></li>
+                        <li><a href="reservas.html">Reservas</a></li>
+                        <li><a href="contacto.html" class="active">Contacto</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                    </ul>
+                </nav>
+                <div class="header-cta">
+                    <a href="tel:+34981234567" class="phone-link">
+                        <i class="fas fa-phone"></i>
+                        <span>+34 981 234 567</span>
+                    </a>
+                    <a href="reservas.html" class="btn btn-primary">Reservar</a>
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header contact-header">
+        <div class="container">
+            <h1>Contacto</h1>
+            <p>Estamos aquí para ayudarte. Contáctanos</p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section section-padding">
+        <div class="container">
+            <div class="contact-grid">
+                <!-- Contact Info -->
+                <div class="contact-info">
+                    <h2>Información de Contacto</h2>
+                    <p>Estamos encantados de atenderte. Puedes contactarnos por teléfono, email o visitarnos directamente. Te esperamos en el corazón de A Coruña.</p>
+                    
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>Dirección</h4>
+                                <p>Calle Real 123<br>15001 A Coruña, Galicia</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h4>Teléfono</h4>
+                                <p><a href="tel:+34981234567">+34 981 234 567</a></p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <p><a href="mailto:info@parrilladaalcume.com">info@parrilladaalcume.com</a></p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h4>Horario de Atención</h4>
+                                <p>Lunes a Sábado: 13:00 - 16:00, 20:00 - 23:00<br>Domingo: 13:00 - 16:00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2901.2345678901234!2d-8.3969!3d43.3709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDIyJzE1LjIiTiA4wrAyMyc0OC44Ilc!5e0!3m2!1ses!2ses!4v1234567890" 
+                            width="100%" 
+                            height="300" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy"
+                            title="Ubicación Parrillada Alcume">
+                        </iframe>
+                    </div>
+                </div>
+                
+                <!-- Contact Form -->
+                <div class="contact-form-container">
+                    <h3>Envíanos un Mensaje</h3>
+                    <form id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactNombre">Nombre *</label>
+                                <input type="text" id="contactNombre" name="nombre" required placeholder="Tu nombre">
+                            </div>
+                            <div class="form-group">
+                                <label for="contactApellidos">Apellidos *</label>
+                                <input type="text" id="contactApellidos" name="apellidos" required placeholder="Tus apellidos">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactEmail">Email *</label>
+                                <input type="email" id="contactEmail" name="email" required placeholder="tu@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="contactTelefono">Teléfono</label>
+                                <input type="tel" id="contactTelefono" name="telefono" placeholder="+34 981 234 567">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactAsunto">Asunto *</label>
+                            <select id="contactAsunto" name="asunto" required>
+                                <option value="">Selecciona un asunto</option>
+                                <option value="consulta">Consulta general</option>
+                                <option value="reserva">Consulta sobre reserva</option>
+                                <option value="eventos">Eventos y grupos</option>
+                                <option value="sugerencias">Sugerencias</option>
+                                <option value="reclamaciones">Reclamaciones</option>
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactMensaje">Mensaje *</label>
+                            <textarea id="contactMensaje" name="mensaje" required placeholder="Escribe tu mensaje aquí..." rows="5"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="contactPolitica" name="politica" required>
+                                <label for="contactPolitica">He leído y acepto la <a href="#">política de privacidad</a> *</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hours Section -->
+    <section class="hours-section section-padding">
+        <div class="container">
+            <h2>Horario de Apertura</h2>
+            <div class="hours-grid">
+                <div class="hours-card" id="day-monday">
+                    <h3>Lunes</h3>
+                    <p>13:00 - 16:00<br>20:00 - 23:00</p>
+                    <span class="status">Abierto</span>
+                </div>
+                
+                <div class="hours-card" id="day-tuesday">
+                    <h3>Martes</h3>
+                    <p>13:00 - 16:00<br>20:00 - 23:00</p>
+                    <span class="status">Abierto</span>
+                </div>
+                
+                <div class="hours-card" id="day-wednesday">
+                    <h3>Miércoles</h3>
+                    <p>13:00 - 16:00<br>20:00 - 23:00</p>
+                    <span class="status">Abierto</span>
+                </div>
+                
+                <div class="hours-card" id="day-thursday">
+                    <h3>Jueves</h3>
+                    <p>13:00 - 16:00<br>20:00 - 23:00</p>
+                    <span class="status">Abierto</span>
+                </div>
+                
+                <div class="hours-card" id="day-friday">
+                    <h3>Viernes</h3>
+                    <p>13:00 - 16:00<br>20:00 - 24:00</p>
+                    <span class="status">Abierto</span>
+                </div>
+                
+                <div class="hours-card" id="day-saturday">
+                    <h3>Sábado</h3>
+                    <p>13:00 - 16:00<br>20:00 - 24:00</p>
+                    <span class="status">Abierto</span>
+                </div>
+                
+                <div class="hours-card" id="day-sunday">
+                    <h3>Domingo</h3>
+                    <p>13:00 - 16:00</p>
+                    <span class="status">Abierto</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Parrillada <span>Alcume</span></h3>
+                    <p>Tradición y sabor gallego desde 1998. Especialistas en carnes a la brasa y cocina tradicional en A Coruña.</p>
+                    <div class="social-links">
+                        <a href="https://facebook.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://instagram.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://tripadvisor.com/parrilladaalcume" target="_blank" rel="noopener noreferrer" aria-label="TripAdvisor"><i class="fab fa-tripadvisor"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="menu.html">Menú</a></li>
+                        <li><a href="galeria.html">Galería</a></li>
+                        <li><a href="reservas.html">Reservas</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contacto</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Calle Real 123, 15001 A Coruña</p>
+                    <p><i class="fas fa-phone"></i> <a href="tel:+34981234567">+34 981 234 567</a></p>
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:info@parrilladaalcume.com">info@parrilladaalcume.com</a></p>
+                </div>
+                
+                <div class="footer-hours">
+                    <h4>Horario</h4>
+                    <p><i class="fas fa-clock"></i> Lunes - Jueves: 13:00 - 16:00, 20:00 - 23:00</p>
+                    <p><i class="fas fa-clock"></i> Viernes - Sábado: 13:00 - 16:00, 20:00 - 24:00</p>
+                    <p><i class="fas fa-clock"></i> Domingo: 13:00 - 16:00</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Parrillada Alcume. Todos los derechos reservados.</p>
+                <div class="footer-bottom-links">
+                    <a href="faq.html">Preguntas Frecuentes</a>
+                    <a href="contacto.html">Contacto</a>
+                    <a href="#">Política de Privacidad</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/contacto.js"></script>
+</body>
+</html>
