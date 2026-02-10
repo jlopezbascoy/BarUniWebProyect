@@ -135,7 +135,11 @@ async function cancelarReserva(req, res, next) {
         }
         
         // Cancelar
-        const cancelado = await Reserva.cancelar(codigo, motivo);
+        const reqInfo = {
+            ip: req.ip,
+            userAgent: req.get('user-agent')
+        };
+        const cancelado = await Reserva.cancelar(codigo, motivo, reqInfo);
         
         if (!cancelado) {
             return res.status(400).json({

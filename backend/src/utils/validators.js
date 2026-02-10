@@ -157,7 +157,13 @@ function isValidPersonas(personas) {
 function sanitizeText(text) {
     if (!text || typeof text !== 'string') return '';
     
-    return validator.escape(text.trim());
+    // Solo eliminar espacios y tags HTML básicos, manteniendo tildes y ñ legibles
+    let clean = text.trim();
+    // Eliminar tags <script> y otros peligrosos pero dejar texto normal
+    clean = clean.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
+    clean = clean.replace(/<[^>]+>/g, ""); // Eliminar cualquier otro tag HTML
+    
+    return clean;
 }
 
 /**
@@ -214,7 +220,8 @@ function validateReserva(data) {
     if (!isValidEmail(data.email)) {
         errors.push({ field: 'email', message: 'Email inválido' });
     } else {
-        sanitized.email = validator.normalizeEmail(data.email.trim());
+        // Guardar email tal cual lo escribe el usuario (sin normalización que altere gmail)
+        sanitized.email = data.email.trim();
     }
     
     if (!isValidTelefono(data.telefono)) {

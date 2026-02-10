@@ -127,26 +127,56 @@ class Reserva {
     }
     
     /**
-     * Cancelar reserva
+     * Cancelar reserva (Borrado físico con respaldo en auditoría)
      * @param {string} codigo
      * @param {string} motivo - Opcional
+     * @param {Object} reqInfo - IP y UserAgent (Opcional)
      * @returns {Promise<boolean>}
      */
-    static async cancelar(codigo, motivo = null) {
+    static async cancelar(codigo, motivo = null, reqInfo = {}) {
         try {
-            const sql = `
-                UPDATE reservas 
-                SET estado = ?, cancelled_at = CURRENT_TIMESTAMP, cancel_reason = ?
-                WHERE codigo = ? AND estado = ?
+            // 1. Obtener la reserva completa antes de borrar
+            const reserva = await get('SELECT * FROM reservas WHERE codigo = ?', [codigo]);
+            
+            if (!reserva) {
+                return false;
+            }
+
+            // 2. Insertar en audit_logs (guardar historial completo)
+            const auditSql = `
+                INSERT INTO audit_logs (
+                    tabla, registro_id, accion, 
+                    datos_anteriores, datos_nuevos, 
+                    ip_address, user_agent
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
             `;
             
-            const result = await run(sql, ['cancelada', motivo, codigo, 'confirmada']);
+            const datosAnteriores = JSON.stringify(reserva);
+            const datosNuevos = JSON.stringify({ 
+                estado: 'cancelada', 
+                cancel_reason: motivo,
+                cancelled_at: new Date().toISOString()
+            });
+
+            await run(auditSql, [
+                'reservas',
+                reserva.id,
+                'CANCEL',
+                datosAnteriores,
+                datosNuevos,
+                reqInfo.ip || null,
+                reqInfo.userAgent || null
+            ]);
+            
+            // 3. Borrar físicamente de la tabla reservas
+            const sql = `DELETE FROM reservas WHERE codigo = ?`;
+            const result = await run(sql, [codigo]);
             
             if (result.changes === 0) {
                 return false;
             }
             
-            logger.info('Reserva cancelada', { codigo, motivo });
+            logger.info('Reserva cancelada y archivada', { codigo, motivo });
             return true;
         } catch (error) {
             logger.error('Error al cancelar reserva', { error: error.message, codigo });
