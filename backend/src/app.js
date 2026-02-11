@@ -19,6 +19,7 @@ const {
 } = require('./middleware/security');
 
 const reservasRoutes = require('./routes/reservas');
+const contactoRoutes = require('./routes/contacto');
 const { logger } = require('./utils/logger');
 
 // Crear aplicación Express
@@ -56,6 +57,7 @@ app.get('/health', (req, res) => {
 
 // Rutas API
 app.use('/api/reservas', reservasRoutes);
+app.use('/api/contacto', contactoRoutes);
 
 // Manejo de rutas no encontradas
 app.use(notFoundHandler);

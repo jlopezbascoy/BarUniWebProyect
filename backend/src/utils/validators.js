@@ -157,13 +157,10 @@ function isValidPersonas(personas) {
 function sanitizeText(text) {
     if (!text || typeof text !== 'string') return '';
     
-    // Solo eliminar espacios y tags HTML básicos, manteniendo tildes y ñ legibles
-    let clean = text.trim();
-    // Eliminar tags <script> y otros peligrosos pero dejar texto normal
-    clean = clean.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
-    clean = clean.replace(/<[^>]+>/g, ""); // Eliminar cualquier otro tag HTML
-    
-    return clean;
+    // Usar validator.escape() para neutralizar todas las entidades HTML de forma segura
+    // Esto escapa caracteres como <, >, &, etc. para prevenir XSS
+    // El texto se mantiene legible pero los caracteres especiales quedan neutralizados
+    return validator.escape(text.trim());
 }
 
 /**
@@ -220,8 +217,12 @@ function validateReserva(data) {
     if (!isValidEmail(data.email)) {
         errors.push({ field: 'email', message: 'Email inválido' });
     } else {
-        // Guardar email tal cual lo escribe el usuario (sin normalización que altere gmail)
-        sanitized.email = data.email.trim();
+        // Guardar email tal cual lo escribe el usuario (display/original)
+        const trimmed = data.email.trim();
+        sanitized.email = trimmed;
+        // Guardar versión normalizada para lookups/deduplicación
+        // validator.normalizeEmail() produce dirección canónica estable (ej: jota+tag@gmail.com -> jota@gmail.com)
+        sanitized.emailNormalized = validator.normalizeEmail(trimmed);
     }
     
     if (!isValidTelefono(data.telefono)) {

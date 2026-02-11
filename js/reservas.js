@@ -338,21 +338,33 @@ async function confirmarCancelacion() {
     const codigo = infoDiv.dataset.codigo;
     const motivo = document.getElementById('motivoCancelacion').value.trim();
     
+    // Referencia al botón para añadir efecto de carga
+    const btnConfirmar = document.querySelector('#cancelacionForm .btn-danger');
+    const textoOriginal = btnConfirmar.innerHTML;
+    
     if (!codigo) {
         showNotification('Error: No se encontró el código de reserva', 'error');
         return;
     }
     
-    if (!confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
-        return;
-    }
+    // Feedback visual de carga (más profesional que un alert)
+    btnConfirmar.disabled = true;
+    btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
     
-    const exito = await cancelarReserva(codigo, motivo);
-    
-    if (exito) {
-        document.getElementById('cancelacionForm').style.display = 'none';
-        document.getElementById('reservaInfo').style.display = 'none';
-        document.getElementById('codigoConsulta').value = '';
+    try {
+        const exito = await cancelarReserva(codigo, motivo);
+        
+        if (exito) {
+            document.getElementById('cancelacionForm').style.display = 'none';
+            document.getElementById('reservaInfo').style.display = 'none';
+            document.getElementById('codigoConsulta').value = '';
+        }
+    } finally {
+        // Restaurar botón (por si hay error o para futuras acciones)
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.innerHTML = textoOriginal;
+        }
     }
 }
 

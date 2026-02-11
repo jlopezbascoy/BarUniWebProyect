@@ -3,6 +3,11 @@
  * Gestión del formulario de contacto
  */
 
+// Configuración de API
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001/api'
+    : 'https://api.parrilladaalcume.com/api'; // Cambiar por tu dominio real
+
 document.addEventListener('DOMContentLoaded', function() {
     initContactForm();
     initHoursStatus();
@@ -31,25 +36,56 @@ function initContactForm() {
                 data[key] = value;
             });
             
-            // Guardar mensaje en localStorage (simulación)
-            const mensaje = {
-                ...data,
-                fechaEnvio: new Date().toISOString(),
-                estado: 'pendiente'
-            };
+            // Mostrar loading
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            submitBtn.disabled = true;
             
-            let mensajes = JSON.parse(localStorage.getItem('parrillada_mensajes') || '[]');
-            mensajes.push(mensaje);
-            localStorage.setItem('parrillada_mensajes', JSON.stringify(mensajes));
+            // Enviar mensaje al backend
+            fetch(`${API_URL}/contacto`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Éxito
+                    showNotification('¡Mensaje enviado con éxito! Te responderemos lo antes posible.', 'success');
+                    form.reset();
+                    
+                    // Guardar copia local por seguridad
+                    const mensaje = { ...data, fecha: new Date().toISOString(), status: 'sent' };
+                    let mensajes = JSON.parse(localStorage.getItem('parrillada_mensajes') || '[]');
+                    mensajes.push(mensaje);
+                    localStorage.setItem('parrillada_mensajes', JSON.stringify(mensajes));
+                    
+                } else {
+                    // Error del servidor
+                    if (result.errors) {
+                        const errorMsg = result.errors.map(e => e.msg).join('\n');
+                        showNotification(errorMsg, 'error');
+                    } else {
+                        showNotification(result.message || 'Error al enviar mensaje', 'error');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error de conexión. Inténtalo de nuevo más tarde.', 'error');
+            })
+            .finally(() => {
+                // Restaurar botón
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
             
-            // Mostrar mensaje de éxito
-            showNotification('¡Mensaje enviado con éxito! Te responderemos lo antes posible.', 'success');
-            
-            // Resetear formulario
-            form.reset();
-            
-            // En un entorno real, aquí se enviaría el mensaje al servidor
-            console.log('Mensaje enviado:', mensaje);
+            // No mostrar mensaje de éxito falso aquí
+            // showNotification('¡Mensaje enviado con éxito! Te responderemos lo antes posible.', 'success');
+            // form.reset();
         });
     }
 }

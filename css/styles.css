@@ -101,9 +101,19 @@ img {
     border: 2px solid var(--color-white);
 }
 
+.btn-secondary.btn-dark {
+    color: var(--color-dark);
+    border-color: var(--color-dark);
+}
+
 .btn-secondary:hover {
     background-color: var(--color-white);
     color: var(--color-dark);
+}
+
+.btn-secondary.btn-dark:hover {
+    background-color: var(--color-dark);
+    color: var(--color-white);
 }
 
 .btn-accent {

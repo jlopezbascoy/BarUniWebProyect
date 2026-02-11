@@ -137,19 +137,26 @@ const validateFechaFutura = (req, res, next) => {
 };
 
 /**
- * Verificar duplicados (misma fecha, hora, email)
+ * Verificar duplicados (misma fecha, hora, email normalizado)
  */
 const checkDuplicateReserva = async (req, res, next) => {
     const db = require('../config/database');
-    const { email, fecha, hora } = req.validatedData || req.body;
+    const validator = require('validator');
+    const { email, emailNormalized, fecha, hora } = req.validatedData || req.body;
     
     try {
+        // Usar emailNormalized para la deduplicación (comparación segura de emails)
+        // Esto previene duplicados causados por variaciones en el email (ej: user@gmail.com vs user+tag@gmail.com)
+        const normalizedEmailForLookup = emailNormalized || validator.normalizeEmail(email.trim());
+        
+        // Obtener todas las reservas para esa fecha/hora y normalizar sus emails para comparar
         const existing = await db.get(
-            'SELECT id, estado FROM reservas WHERE email = ? AND fecha = ? AND hora = ? AND estado = ?',
-            [email, fecha, hora, 'confirmada']
+            'SELECT id, estado, email FROM reservas WHERE fecha = ? AND hora = ? AND estado = ?',
+            [fecha, hora, 'confirmada']
         );
         
-        if (existing) {
+        // Comparar el email normalizado contra el email normalizado de la base de datos
+        if (existing && validator.normalizeEmail(existing.email.trim()) === normalizedEmailForLookup) {
             return res.status(409).json({
                 success: false,
                 message: 'Ya tienes una reserva confirmada para esta fecha y hora'

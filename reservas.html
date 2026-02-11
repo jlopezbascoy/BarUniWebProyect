@@ -94,7 +94,48 @@
                         </div>
                     </div>
                     
-                    <div class="map-container">
+                    <!-- Consultar/Cancelar Reserva (Movido aquí para mejor flujo) -->
+                    <div class="manage-reservation-section" style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #eee;">
+                        <h3>Gestionar Reserva</h3>
+                        <p style="margin-bottom: 15px;">¿Ya tienes una reserva? Introduce tu código para consultar o cancelar.</p>
+                        
+                        <div class="manage-reservation-form">
+                            <div class="form-group">
+                                <label for="codigoConsulta">Código de Reserva</label>
+                                <input type="text" id="codigoConsulta" placeholder="Ej: ALC-ABC123-DEF" style="margin-bottom: 10px;">
+                            </div>
+                            <button type="button" class="btn btn-secondary btn-dark" onclick="buscarReserva()">
+                                <i class="fas fa-search"></i> Buscar Reserva
+                            </button>
+                        </div>
+                        
+                        <!-- Resultado de búsqueda -->
+                        <div id="reservaInfo" class="reserva-info" style="display: none; margin-top: 20px; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+                            <h3 style="font-size: 20px; margin-bottom: 15px;">Detalles de tu Reserva</h3>
+                            <div id="reservaDetalles" style="margin-bottom: 20px;"></div>
+                            <button type="button" class="btn btn-danger" onclick="mostrarCancelacion()" style="background-color: #dc3545; color: white; border: none;">
+                                <i class="fas fa-times"></i> Cancelar Reserva
+                            </button>
+                        </div>
+                        
+                        <!-- Formulario de cancelación -->
+                        <div id="cancelacionForm" class="cancelacion-form" style="display: none; margin-top: 20px; background: #fff5f5; padding: 20px; border-radius: 8px; border: 1px solid #ffcdd2;">
+                            <h3 style="color: #c62828; font-size: 20px;">Cancelar Reserva</h3>
+                            <div class="form-group">
+                                <label for="motivoCancelacion">Motivo (opcional)</label>
+                                <textarea id="motivoCancelacion" placeholder="Indica el motivo de la cancelación..." style="width: 100%; min-height: 80px;"></textarea>
+                            </div>
+                            <div class="form-actions" style="display: flex; gap: 10px;">
+                                <button type="button" class="btn btn-secondary btn-dark" onclick="ocultarCancelacion()">Volver</button>
+                                <button type="button" class="btn btn-danger" onclick="confirmarCancelacion()" style="background-color: #dc3545; color: white; border: none;">
+                                    <i class="fas fa-trash"></i> Confirmar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mapa al final de la columna izquierda -->
+                    <div class="map-container" style="margin-top: 40px;">
                         <iframe 
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2901.2345678901234!2d-8.3969!3d43.3709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDIyJzE1LjIiTiA4wrAyMyc0OC44Ilc!5e0!3m2!1ses!2ses!4v1234567890" 
                             width="100%" 
@@ -105,47 +146,7 @@
                             title="Ubicación Parrillada Alcume"
                             sandbox="allow-scripts allow-same-origin allow-popups">
                         </iframe>
-                        <p class="map-note"><i class="fas fa-info-circle"></i> Calle Real 123, 15001 A Coruña</p>
-                    </div>
-                </div>
-                
-                <!-- Consultar/Cancelar Reserva -->
-                <div class="reservation-info">
-                    <h2>Gestionar Reserva</h2>
-                    <p>¿Ya tienes una reserva? Introduce tu código para consultar o cancelar.</p>
-                    
-                    <div class="manage-reservation-form">
-                        <div class="form-group">
-                            <label for="codigoConsulta">Código de Reserva</label>
-                            <input type="text" id="codigoConsulta" placeholder="Ej: ALC-ABC123-DEF">
-                        </div>
-                        <button type="button" class="btn btn-secondary" onclick="buscarReserva()">
-                            <i class="fas fa-search"></i> Buscar Reserva
-                        </button>
-                    </div>
-                    
-                    <!-- Resultado de búsqueda -->
-                    <div id="reservaInfo" class="reserva-info" style="display: none;">
-                        <h3>Detalles de tu Reserva</h3>
-                        <div id="reservaDetalles"></div>
-                        <button type="button" class="btn btn-danger" onclick="mostrarCancelacion()">
-                            <i class="fas fa-times"></i> Cancelar Reserva
-                        </button>
-                    </div>
-                    
-                    <!-- Formulario de cancelación -->
-                    <div id="cancelacionForm" class="cancelacion-form" style="display: none;">
-                        <h3>Cancelar Reserva</h3>
-                        <div class="form-group">
-                            <label for="motivoCancelacion">Motivo (opcional)</label>
-                            <textarea id="motivoCancelacion" placeholder="Indica el motivo de la cancelación..."></textarea>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="ocultarCancelacion()">Volver</button>
-                            <button type="button" class="btn btn-danger" onclick="confirmarCancelacion()">
-                                <i class="fas fa-trash"></i> Confirmar Cancelación
-                            </button>
-                        </div>
+                        <p class="map-note" style="margin-top: 10px; font-size: 14px; color: #666;"><i class="fas fa-info-circle"></i> Calle Real 123, 15001 A Coruña</p>
                     </div>
                 </div>
                 
