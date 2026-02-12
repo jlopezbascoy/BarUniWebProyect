@@ -103,48 +103,97 @@ function initReservationForm() {
 async function loadHorariosDisponibles() {
     const fechaInput = document.getElementById('fecha');
     const horaSelect = document.getElementById('hora');
+    const personasSelect = document.getElementById('personas');
     
-    if (fechaInput && horaSelect) {
-        fechaInput.addEventListener('change', async function() {
-            const fecha = this.value;
-            if (!fecha) return;
+    // Deshabilitar selector de hora inicialmente hasta que se seleccione fecha y personas
+    if (horaSelect) {
+        // Guardar estado original
+        if (!fechaInput.value || !personasSelect.value) {
+             horaSelect.disabled = true;
+             // Mensaje helper
+             const defaultOption = horaSelect.querySelector('option[value=""]');
+             if (defaultOption) {
+                 defaultOption.dataset.originalText = defaultOption.textContent;
+                 defaultOption.textContent = "Selecciona fecha y personas";
+             }
+        }
+    }
+
+    // Función para cargar horarios
+    const fetchHorarios = async () => {
+        const fecha = fechaInput.value;
+        const personas = personasSelect.value;
+        const defaultOption = horaSelect.querySelector('option[value=""]');
+        
+        if (!fecha || !personas) {
+            horaSelect.disabled = true;
+            if (defaultOption) defaultOption.textContent = "Selecciona fecha y personas";
+            return;
+        }
+
+        // Habilitar temporalmente para mostrar carga (opcional) o mantener deshabilitado
+        horaSelect.disabled = true;
+        if (defaultOption) defaultOption.textContent = "Cargando disponibilidad...";
             
-            try {
-                const response = await fetch(`${API_URL}/reservas/horarios?fecha=${fecha}`);
-                const result = await response.json();
+        try {
+            const response = await fetch(`${API_URL}/reservas/horarios?fecha=${fecha}&personas=${personas}`);
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                horaSelect.disabled = false;
+                if (defaultOption) defaultOption.textContent = defaultOption.dataset.originalText || "Selecciona hora";
+
+                // Actualizar select de horas
+                const horarios = result.data.horarios;
+                const optgroups = horaSelect.querySelectorAll('optgroup');
                 
-                if (response.ok && result.success) {
-                    // Actualizar select de horas
-                    const horarios = result.data.horarios;
-                    const optgroups = horaSelect.querySelectorAll('optgroup');
+                optgroups.forEach(group => {
+                    // No usamos el turno del grupo para evitar errores de coincidencia con backend
+                    const options = group.querySelectorAll('option');
                     
-                    optgroups.forEach(group => {
-                        const turno = group.label.toLowerCase();
-                        const options = group.querySelectorAll('option');
+                    options.forEach(option => {
+                        const hora = option.value;
+                        // Buscar la info de esta hora en la respuesta del backend
+                        const horarioInfo = horarios.find(h => h.hora === hora);
                         
-                        options.forEach(option => {
-                            const hora = option.value;
-                            const horarioInfo = horarios.find(h => h.hora === hora && h.turno === turno);
-                            
-                            if (horarioInfo) {
-                                option.disabled = !horarioInfo.disponible;
+                        // Resetear estado base (limpiar texto anterior)
+                        option.textContent = hora;
+                        
+                        if (horarioInfo) {
+                            // Si el backend devuelve info para esta hora, aplicar disponibilidad
+                            if (!horarioInfo.disponible) {
+                                option.disabled = true;
+                                option.textContent += ' (Completo)';
+                            } else {
+                                option.disabled = false;
                             }
-                        });
+                        } else {
+                            // Si el backend NO devuelve info para esta hora (ej. Cenas en domingo),
+                            // asumimos que no está disponible y la deshabilitamos por seguridad.
+                            option.disabled = true;
+                        }
                     });
-                }
-            } catch (error) {
-                console.error('Error al cargar horarios:', error);
-                showNotification('Error al cargar los horarios disponibles. Por favor, recarga la página.', 'error');
-                // Habilitar todos los horarios por defecto en caso de error
-                const horaSelect = document.getElementById('hora');
-                if (horaSelect) {
-                    const allOptions = horaSelect.querySelectorAll('option');
-                    allOptions.forEach(option => {
-                        if (option.value) option.disabled = false;
-                    });
+                });
+
+                // Si la hora seleccionada ya no está disponible, limpiar selección
+                if (horaSelect.value) {
+                    const selectedOption = horaSelect.querySelector(`option[value="${horaSelect.value}"]`);
+                    if (selectedOption && selectedOption.disabled) {
+                        horaSelect.value = "";
+                    }
                 }
             }
-        });
+        } catch (error) {
+            console.error('Error al cargar horarios:', error);
+            showNotification('Error al cargar disponibilidad. Inténtalo de nuevo.', 'error');
+            horaSelect.disabled = true;
+        }
+    };
+
+    if (fechaInput && horaSelect && personasSelect) {
+        // Escuchar cambios en fecha y personas
+        fechaInput.addEventListener('change', fetchHorarios);
+        personasSelect.addEventListener('change', fetchHorarios);
     }
 }
 

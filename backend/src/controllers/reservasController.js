@@ -221,7 +221,7 @@ async function checkDisponibilidad(req, res, next) {
  */
 async function getHorarios(req, res, next) {
     try {
-        const { fecha } = req.query;
+        const { fecha, personas } = req.query;
         
         if (!fecha) {
             return res.status(400).json({
@@ -229,6 +229,10 @@ async function getHorarios(req, res, next) {
                 message: 'Falta parámetro: fecha'
             });
         }
+
+        // Si no se especifica personas, asumimos 1 para comprobación básica,
+        // pero idealmente el frontend debe enviarlo siempre.
+        const numPersonas = parseInt(personas) || 1;
         
         // Horarios base
         const horariosComida = ['13:00', '13:30', '14:00', '14:30', '15:00', '15:30'];
@@ -239,39 +243,30 @@ async function getHorarios(req, res, next) {
         const esDomingo = diaSemana === 0;
         
         let horariosDisponibles = [];
-        
-        // Obtener ocupación por hora
-        const reservas = await Reserva.getByFecha(fecha);
-        const ocupacionPorHora = {};
-        
-        reservas.forEach(r => {
-            ocupacionPorHora[r.hora] = (ocupacionPorHora[r.hora] || 0) + r.personas;
-        });
-        
-        // Función para verificar si un horario está disponible
-        const verificarHorario = (hora) => {
-            const ocupado = ocupacionPorHora[hora] || 0;
-            return ocupado < 50; // Capacidad máxima
+
+        // Helper function
+        const checkTimeSlot = async (hora) => {
+            return await Reserva.verificarDisponibilidad(fecha, hora, numPersonas);
         };
         
-        // Agregar horarios de comida
-        horariosComida.forEach(hora => {
+        // Process lunch slots
+        for (const hora of horariosComida) {
             horariosDisponibles.push({
                 hora,
                 turno: 'comida',
-                disponible: verificarHorario(hora)
+                disponible: await checkTimeSlot(hora)
             });
-        });
+        }
         
-        // Agregar horarios de cena (no disponibles el domingo)
+        // Process dinner slots (if not Sunday)
         if (!esDomingo) {
-            horariosCena.forEach(hora => {
+            for (const hora of horariosCena) {
                 horariosDisponibles.push({
                     hora,
                     turno: 'cena',
-                    disponible: verificarHorario(hora)
+                    disponible: await checkTimeSlot(hora)
                 });
-            });
+            }
         }
         
         res.json({

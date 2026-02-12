@@ -7,6 +7,7 @@ const { db, query, run, get } = require('../config/database');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const { logger } = require('../utils/logger');
+const mesas = require('../config/tables');
 
 class Reserva {
     /**
@@ -125,7 +126,7 @@ class Reserva {
             throw error;
         }
     }
-    
+
     /**
      * Cancelar reserva (Borrado físico con respaldo en auditoría)
      * @param {string} codigo
@@ -183,7 +184,7 @@ class Reserva {
             throw error;
         }
     }
-    
+
     /**
      * Obtener reservas por fecha
      * @param {string} fecha - YYYY-MM-DD
@@ -203,9 +204,9 @@ class Reserva {
             throw error;
         }
     }
-    
+
     /**
-     * Verificar disponibilidad
+     * Verificar disponibilidad (Reemplazo con gestión de mesas)
      * @param {string} fecha
      * @param {string} hora
      * @param {number} personas
@@ -213,17 +214,86 @@ class Reserva {
      */
     static async verificarDisponibilidad(fecha, hora, personas) {
         try {
-            const result = await get(
-                'SELECT SUM(personas) as total FROM reservas WHERE fecha = ? AND hora = ? AND estado = ?',
+            // 1. Obtener todas las reservas confirmadas para esa fecha y hora
+            const reservasExistentes = await query(
+                'SELECT personas FROM reservas WHERE fecha = ? AND hora = ? AND estado = ?',
                 [fecha, hora, 'confirmada']
             );
+
+            // DEBUG LOG
+            logger.info(`Checking availability: ${fecha} ${hora} for ${personas} pax. Existing reservations: ${JSON.stringify(reservasExistentes)}`);
+
+            // 2. Cargar inventarios (Físico y Virtual)
+            // Importante: 'mesas' contiene { mesasFisicas, combinaciones }
+            const inventarioFisico = JSON.parse(JSON.stringify(mesas.mesasFisicas || mesas));
+            const inventarioVirtual = mesas.combinaciones || [];
             
-            const totalReservado = result.total || 0;
-            const capacidadMaxima = parseInt(process.env.MAX_CAPACITY) || 50;
+            // Ordenar por capacidad (Best Fit Strategy)
+            if (Array.isArray(inventarioFisico)) {
+                inventarioFisico.sort((a, b) => a.capacidad - b.capacidad);
+                inventarioFisico.forEach(m => m.ocupada = false);
+            }
+
+            // Función helper para verificar si una combinación está libre
+            const isComboFree = (combo) => {
+                return combo.componentes.every(idComp => {
+                    const mesa = inventarioFisico.find(m => m.id === idComp);
+                    return mesa && !mesa.ocupada;
+                });
+            };
+
+            // Función helper para ocupar una mesa (o combinación)
+            const ocuparMesa = (personas) => {
+                // A. Intentar mesa física individual (Prioridad 1: No fragmentar mesas si no es necesario)
+                const mesaFisica = inventarioFisico.find(m => !m.ocupada && m.capacidad >= personas);
+                if (mesaFisica) {
+                    mesaFisica.ocupada = true;
+                    return true;
+                }
+
+                // B. Intentar combinación (Prioridad 2: Juntar mesas)
+                // Ordenar combinaciones por capacidad para usar la más pequeña necesaria
+                const combosPosibles = inventarioVirtual
+                    .filter(c => c.capacidad >= personas)
+                    .sort((a, b) => a.capacidad - b.capacidad);
+
+                for (const combo of combosPosibles) {
+                    if (isComboFree(combo)) {
+                        // Ocupar todas las mesas físicas que componen esta combinación
+                        combo.componentes.forEach(idComp => {
+                            const mesa = inventarioFisico.find(m => m.id === idComp);
+                            if (mesa) mesa.ocupada = true;
+                        });
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            // 3. Simular ocupación con reservas existentes
+            // Ordenamos de mayor a menor grupo para optimizar el Tetris
+            const reservasParaProcesar = [...reservasExistentes].sort((a, b) => b.personas - a.personas);
+
+            for (const reserva of reservasParaProcesar) {
+                ocuparMesa(reserva.personas);
+            }
             
-            return (totalReservado + parseInt(personas)) <= capacidadMaxima;
+            // 4. Verificar si queda sitio para la NUEVA solicitud
+            // Aquí usamos la misma lógica: ¿Cabe el nuevo grupo en alguna mesa o combinación restante?
+            
+            // Simulación "dry-run" (sin modificar estado real, aunque aquí estamos en memoria local)
+            // Revisar físicas
+            const cabeEnFisica = inventarioFisico.some(m => !m.ocupada && m.capacidad >= personas);
+            if (cabeEnFisica) return true;
+
+            // Revisar combinaciones
+            const cabeEnCombo = inventarioVirtual.some(c => c.capacidad >= personas && isComboFree(c));
+            
+            return cabeEnCombo;
+
+            
         } catch (error) {
-            logger.error('Error al verificar disponibilidad', { error: error.message });
+            logger.error('Error al verificar disponibilidad de mesas', { error: error.message });
             throw error;
         }
     }

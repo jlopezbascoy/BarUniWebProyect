@@ -1,0 +1,28 @@
+Entendido. Aquí tienes el Plan de Prueba Manual Definitivo para verificar la lógica de Mesas Combinadas y Cancelaciones, usando la página web:
+Preparación
+1.  Asegúrate de que el servidor está corriendo y la base de datos está limpia (o usa una fecha futura vacía, ej. dentro de 2 semanas).
+2.  Abre 2 navegadores diferentes (o una ventana normal y otra de incógnito) para simular ser dos personas.
+Escenario: El Boicot a la Mesa Grande
+Este escenario prueba si el sistema bloquea inteligentemente una mesa grande cuando alguien ocupa una pequeña parte de ella, y si la libera al cancelar.
+Paso 1: Bloquear la Mesa de 8 (El Boicot)
+1.  Navegador A: Entra a Reservas.
+2.  Elige una fecha vacía (ej. 20 de Agosto).
+3.  Reserva para 4 personas a las 14:00.
+    *   Nota interna: El sistema asignará una de las mesas de 4 disponibles. Sigue haciendo reservas de 4 personas hasta que el sistema empiece a usar combinaciones o mesas grandes.
+    *   Truco rápido: Si sabes cuál es la mesa que forma parte de la combinación grande (ej. Mesa 8), reservar esa específicamente bloquearía la combinación. Como no puedes elegir mesa específica, simplemente haz reservas hasta llenar todas las mesas de 4 y 6 estándar.
+Paso 2: Verificar el Bloqueo
+1.  Navegador B: Intenta reservar para 8 personas a las 14:00 en la misma fecha.
+2.  Resultado esperado: Debería salir (Completo) o no dejarte seleccionar la hora.
+    *   Por qué: Porque aunque caben 8 personas en total en el local, no quedan mesas juntas (la mesa de 8 está "rota" por las reservas anteriores o ya ocupada).
+Paso 3: La Cancelación (El Desbloqueo)
+1.  Navegador A: Ve a la sección "Mis Reservas" o usa el enlace del correo (si lo hubiera) y CANCELA una de las reservas de 4 personas que hiciste (idealmente la última).
+2.  Resultado esperado: Mensaje de "Reserva cancelada con éxito".
+Paso 4: Verificar la Recuperación
+1.  Navegador B: Recarga la página.
+2.  Intenta reservar de nuevo para 8 personas a las 14:00.
+3.  Resultado esperado: ¡Ahora debería salir DISPONIBLE!
+    *   Por qué: Al cancelar la reserva de 4, el sistema liberó los recursos. Si se liberaron dos mesas contiguas (o la mesa grande), el algoritmo de "Tetris" ahora ve espacio suficiente para montar la mesa de 8 de nuevo.
+Resumen de lo que prueba esto:
+1.  Lógica de Combinación: El sistema sabe sumar mesas.
+2.  Gestión de Estado: El sistema sabe qué mesa real está ocupada.
+3.  Reactividad: Al cancelar, el inventario se actualiza al instante para el siguiente cliente.
