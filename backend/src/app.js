@@ -34,8 +34,8 @@ app.use(getCorsConfig());
 app.use(generalLimiter);
 
 // Parser de JSON
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '100kb' })); // Límite reducido para prevenir DoS
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
 // Sanitización de inputs
 app.use(sanitizeInput);

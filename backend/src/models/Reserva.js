@@ -18,55 +18,79 @@ class Reserva {
      */
     static async create(data, reqInfo) {
         try {
-            // Generar código único
-            const codigo = this.generarCodigo();
-            const codigoHash = await bcrypt.hash(codigo, parseInt(process.env.BCRYPT_ROUNDS) || 12);
-            const tokenCancelacion = uuidv4();
-            
-            const sql = `
-                INSERT INTO reservas (
-                    nombre, apellidos, email, telefono,
-                    fecha, hora, personas, ubicacion, ocasion,
-                    alergias, comentarios,
-                    codigo, codigo_hash, token_cancelacion,
-                    ip_address, user_agent
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-            
-            const params = [
-                data.nombre,
-                data.apellidos,
-                data.email,
-                data.telefono,
-                data.fecha,
-                data.hora,
-                data.personas,
-                data.ubicacion || 'indiferente',
-                data.ocasion || null,
-                data.alergias || null,
-                data.comentarios || null,
-                codigo,
-                codigoHash,
-                tokenCancelacion,
-                reqInfo.ip,
-                reqInfo.userAgent
-            ];
-            
-            const result = await run(sql, params);
-            
-            logger.info('Reserva creada exitosamente', {
-                reservaId: result.lastID,
-                fecha: data.fecha,
-                hora: data.hora,
-                personas: data.personas
-            });
-            
-            return {
-                id: result.lastID,
-                codigo,
-                tokenCancelacion,
-                ...data
-            };
+            // Iniciar transacción para asegurar integridad y evitar sobreventa (Race Conditions)
+            await run('BEGIN IMMEDIATE TRANSACTION');
+
+            try {
+                // Verificar disponibilidad una última vez DENTRO de la transacción
+                // Al usar IMMEDIATE, bloqueamos otras escrituras concurrentes
+                const disponible = await this.verificarDisponibilidad(
+                    data.fecha, 
+                    data.hora, 
+                    data.personas
+                );
+
+                if (!disponible) {
+                    throw new Error('Lo sentimos, la mesa acaba de ser ocupada por otro usuario.');
+                }
+
+                // Generar código único
+                const codigo = this.generarCodigo();
+                const codigoHash = await bcrypt.hash(codigo, parseInt(process.env.BCRYPT_ROUNDS) || 12);
+                const tokenCancelacion = uuidv4();
+                
+                const sql = `
+                    INSERT INTO reservas (
+                        nombre, apellidos, email, telefono,
+                        fecha, hora, personas, ubicacion, ocasion,
+                        alergias, comentarios,
+                        codigo, codigo_hash, token_cancelacion,
+                        ip_address, user_agent
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+                
+                const params = [
+                    data.nombre,
+                    data.apellidos,
+                    data.email,
+                    data.telefono,
+                    data.fecha,
+                    data.hora,
+                    data.personas,
+                    data.ubicacion || 'indiferente',
+                    data.ocasion || null,
+                    data.alergias || null,
+                    data.comentarios || null,
+                    codigo,
+                    codigoHash,
+                    tokenCancelacion,
+                    reqInfo.ip,
+                    reqInfo.userAgent
+                ];
+                
+                const result = await run(sql, params);
+                
+                // Confirmar transacción
+                await run('COMMIT');
+                
+                logger.info('Reserva creada exitosamente', {
+                    reservaId: result.lastID,
+                    fecha: data.fecha,
+                    hora: data.hora,
+                    personas: data.personas
+                });
+                
+                return {
+                    id: result.lastID,
+                    codigo,
+                    tokenCancelacion,
+                    ...data
+                };
+            } catch (innerError) {
+                // Rollback si algo falla dentro de la transacción
+                await run('ROLLBACK');
+                throw innerError;
+            }
         } catch (error) {
             logger.error('Error al crear reserva', { error: error.message, data });
             throw error;

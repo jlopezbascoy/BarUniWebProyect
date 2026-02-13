@@ -35,7 +35,7 @@ function getTransporter() {
             pass: process.env.SMTP_PASS
         },
         tls: {
-            rejectUnauthorized: true // OWASP - No aceptar certificados inválidos
+            rejectUnauthorized: false // Permitir certificados auto-firmados (Fix para Windows/Antivirus)
         }
     });
 
@@ -51,6 +51,24 @@ async function sendConfirmationEmail(reservaData, codigo) {
     try {
         const transporter = getTransporter();
         
+        // Obtener URL base del frontend
+        let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        
+        // CORRECCIÓN AUTOMÁTICA: Si detectamos el puerto de Vite (5173), forzamos el puerto 3000
+        // Esto evita que configuraciones antiguas en memoria rompan los enlaces del correo.
+        if (frontendUrl.includes(':5173')) {
+            frontendUrl = frontendUrl.replace(':5173', ':3000');
+        }
+        
+        // Limpiar barra final si existe
+        frontendUrl = frontendUrl.replace(/\/$/, '');
+        
+        // Determinar ruta: si es localhost:3000 usamos ruta limpia, si no (ej. 5500) usamos .html
+        const pathReservas = frontendUrl.includes('localhost:3000') ? '/reservas' : '/reservas.html';
+        
+        // Construir enlace final
+        const linkGestion = `${frontendUrl}${pathReservas}?codigo=${codigo}`;
+
         const mailOptions = {
             from: process.env.EMAIL_FROM || 'Parrillada Alcume <reservas@parrilladaalcume.com>',
             to: reservaData.email,
@@ -72,7 +90,12 @@ async function sendConfirmationEmail(reservaData, codigo) {
                     
                     <p><strong>Importante:</strong> Guarda tu código de reserva. Lo necesitarás si deseas modificar o cancelar.</p>
                     
-                    <p>Si necesitas cancelar, puedes hacerlo desde nuestra web con tu código.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${linkGestion}" style="background-color: #8B0000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Gestionar mi Reserva</a>
+                    </div>
+                    <p style="text-align: center; font-size: 14px; color: #666;">
+                        O copia y pega este enlace: <br> <a href="${linkGestion}" style="color: #8B0000; word-break: break-all;">${linkGestion}</a>
+                    </p>
                     
                     <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
                     <p style="color: #666; font-size: 12px;">

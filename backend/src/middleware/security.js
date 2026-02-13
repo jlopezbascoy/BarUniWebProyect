@@ -23,7 +23,7 @@ const helmetConfig = helmet({
                 : ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             scriptSrc: isDevelopment
                 ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", "http://localhost:*", "http://127.0.0.1:*"]
-                : ["'self'", "'unsafe-inline'"],
+                : ["'self'", "https://cdnjs.cloudflare.com"], // Producción: Solo scripts propios y CDNs confiables
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
             connectSrc: isDevelopment
@@ -117,7 +117,7 @@ const generalLimiter = rateLimit({
  */
 const reservasLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hora
-    max: parseInt(process.env.STRICT_RATE_LIMIT_MAX) || 5,
+    max: parseInt(process.env.STRICT_RATE_LIMIT_MAX) || 3, // Reducido a 3 intentos por hora para evitar spam masivo
     message: {
         success: false,
         message: 'Has alcanzado el límite de reservas. Contacta por teléfono.'

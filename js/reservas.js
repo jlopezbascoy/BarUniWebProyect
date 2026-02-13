@@ -12,7 +12,36 @@ document.addEventListener('DOMContentLoaded', function() {
     initReservationForm();
     initDateRestrictions();
     loadHorariosDisponibles();
+    
+    // Verificar si hay código de reserva en la URL (para enlace desde email)
+    checkUrlForCodigo();
 });
+
+/**
+ * Verificar código en URL y cargar reserva automáticamente
+ */
+function checkUrlForCodigo() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const codigo = urlParams.get('codigo');
+    
+    if (codigo) {
+        const codigoInput = document.getElementById('codigoConsulta');
+        if (codigoInput) {
+            codigoInput.value = codigo;
+            
+            // Scroll suave hacia la sección de gestión
+            const manageSection = document.querySelector('.manage-reservation-section');
+            if (manageSection) {
+                manageSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Auto-ejecutar búsqueda tras una pequeña pausa para asegurar que el usuario vea dónde está
+            setTimeout(() => {
+                buscarReserva();
+            }, 800);
+        }
+    }
+}
 
 /**
  * Inicializar formulario de reservas
@@ -335,6 +364,22 @@ function mostrarDetallesReserva(reserva) {
     const infoDiv = document.getElementById('reservaInfo');
     const detallesDiv = document.getElementById('reservaDetalles');
     
+    // Mapeo de traducciones
+    const traducciones = {
+        'cumpleanos': 'Cumpleaños',
+        'aniversario': 'Aniversario',
+        'negocios': 'Comida de Negocios',
+        'familia': 'Reunión Familiar',
+        'romantica': 'Cena Romántica',
+        'otra': 'Otra Ocasión',
+        'interior': 'Interior',
+        'terraza': 'Terraza',
+        'indiferente': 'Sin preferencia'
+    };
+
+    const ocasionTexto = traducciones[reserva.ocasion] || reserva.ocasion;
+    const ubicacionTexto = traducciones[reserva.ubicacion] || reserva.ubicacion;
+
     detallesDiv.innerHTML = `
         <p><strong>Nombre:</strong> ${reserva.nombre} ${reserva.apellidos}</p>
         <p><strong>Fecha:</strong> ${formatearFecha(reserva.fecha)}</p>
@@ -343,8 +388,8 @@ function mostrarDetallesReserva(reserva) {
         <p><strong>Email:</strong> ${reserva.email}</p>
         <p><strong>Teléfono:</strong> ${reserva.telefono}</p>
         <p><strong>Estado:</strong> <span class="estado-${reserva.estado}">${reserva.estado.toUpperCase()}</span></p>
-        ${reserva.ubicacion && reserva.ubicacion !== 'indiferente' ? `<p><strong>Ubicación:</strong> ${reserva.ubicacion}</p>` : ''}
-        ${reserva.ocasion ? `<p><strong>Ocasión:</strong> ${reserva.ocasion}</p>` : ''}
+        ${reserva.ubicacion && reserva.ubicacion !== 'indiferente' ? `<p><strong>Ubicación:</strong> ${ubicacionTexto}</p>` : ''}
+        ${reserva.ocasion ? `<p><strong>Ocasión:</strong> ${ocasionTexto}</p>` : ''}
     `;
     
     infoDiv.style.display = 'block';

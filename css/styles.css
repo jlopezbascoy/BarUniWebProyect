@@ -890,21 +890,91 @@ img {
 
 .menu-list-item {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    flex-direction: column; /* Cambiado a columna para alojar la foto debajo */
     padding: 20px;
     background-color: var(--color-light);
     border-radius: 8px;
     transition: var(--transition);
 }
 
-.menu-list-item:hover {
-    background-color: #e8e8e3;
+.menu-item-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
 }
 
 .menu-item-info h3 {
     font-size: 20px;
     margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.menu-item-info h3 i {
+    font-size: 16px;
+    color: var(--color-text-light);
+    transition: var(--transition);
+}
+
+.menu-item-info h3:hover i {
+    color: var(--color-primary);
+}
+
+.menu-item-photo-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    width: 100%;
+    margin-top: 0;
+}
+
+.menu-item-photo-container.active {
+    margin-top: 15px;
+    max-height: 400px; /* Altura suficiente para la imagen */
+}
+
+.menu-item-photo {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+}
+
+.toggle-photo-btn {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-family: var(--font-primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    transition: transform 0.3s ease;
+}
+
+.toggle-photo-btn:hover {
+    text-decoration: none;
+    transform: scale(1.1);
+}
+
+.toggle-photo-btn i {
+    transition: transform 0.3s ease;
+}
+
+.toggle-photo-btn.active i {
+    transform: rotate(180deg);
+}
+
+.menu-list-item:hover {
+    background-color: #e8e8e3;
 }
 
 .menu-item-info p {

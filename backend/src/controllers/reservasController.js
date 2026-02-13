@@ -71,6 +71,17 @@ async function createReserva(req, res, next) {
         });
         
     } catch (error) {
+        // Manejar errores de unicidad (duplicados a nivel de DB)
+        if (error.message && (error.message.includes('SQLITE_CONSTRAINT') || error.message.includes('UNIQUE constraint'))) {
+            logger.warn('Intento de reserva duplicada bloqueado', { 
+                fecha: req.body.fecha, // Usar req.body porque data podría no estar definido si falla antes
+                email: req.body.email 
+            });
+            return res.status(409).json({
+                success: false,
+                message: 'Ya existe una reserva confirmada con este correo electrónico para la misma fecha y hora.'
+            });
+        }
         next(error);
     }
 }

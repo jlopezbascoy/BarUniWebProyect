@@ -171,3 +171,45 @@ function showNotification(message, type = 'success') {
 }
 
 // Las animaciones CSS ahora están en styles.css
+
+/**
+ * Acordeón para fotos del menú
+ * @param {HTMLElement} btn - El botón que activó el evento
+ */
+function toggleMenuPhoto(btn) {
+    // Encontrar el contenedor de la foto (hermano del padre del botón)
+    const menuItem = btn.closest('.menu-list-item');
+    const photoContainer = menuItem.querySelector('.menu-item-photo-container');
+    const icon = btn.querySelector('i');
+    
+    // Toggle clase active
+    const isActive = photoContainer.classList.contains('active');
+    
+    // Opcional: Cerrar otros acordeones abiertos (para mantener limpieza)
+    /*
+    document.querySelectorAll('.menu-item-photo-container.active').forEach(container => {
+        if (container !== photoContainer) {
+            container.classList.remove('active');
+            // Resetear el botón asociado
+            const otherBtn = container.closest('.menu-list-item').querySelector('.toggle-photo-btn');
+            if (otherBtn) {
+                otherBtn.classList.remove('active');
+                otherBtn.innerHTML = '<i class="fas fa-camera"></i> Ver foto';
+            }
+        }
+    });
+    */
+
+    if (isActive) {
+        photoContainer.classList.remove('active');
+        btn.classList.remove('active');
+        btn.innerHTML = '<i class="fas fa-camera"></i> Ver foto';
+    } else {
+        photoContainer.classList.add('active');
+        btn.classList.add('active');
+        btn.innerHTML = '<i class="fas fa-times"></i> Ocultar foto';
+    }
+}
+
+// Exponer la función globalmente para que funcione el onclick del HTML
+window.toggleMenuPhoto = toggleMenuPhoto;
