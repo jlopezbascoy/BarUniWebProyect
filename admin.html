@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' http://localhost:* http://127.0.0.1:*;">
     <title>Panel de Administración - Parrillada Alcume</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -353,7 +354,74 @@
             }
         });
 
-        // ... (Login y Logout igual que antes) ...
+        // Gestión de Sesión
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('loginError');
+
+            if (!user || !pass) {
+                errorMsg.textContent = 'Por favor, introduce usuario y contraseña';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Crear header de autenticación básica
+            const credentials = btoa(`${user}:${pass}`);
+            const tempAuth = `Basic ${credentials}`;
+
+            // Verificar credenciales intentando cargar datos
+            fetch(`${API_URL}/reservas/admin/lista?limit=1`, {
+                headers: { 'Authorization': tempAuth }
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    throw new Error('Credenciales inválidas');
+                }
+                if (!response.ok) {
+                    throw new Error('Error de conexión');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    authHeader = tempAuth;
+                    sessionStorage.setItem('adminAuth', authHeader);
+                    document.getElementById('loginModal').style.display = 'none';
+                    document.getElementById('mainContent').classList.remove('hidden');
+                    cargarReservas();
+                    // Limpiar formulario
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                    errorMsg.style.display = 'none';
+                } else {
+                     throw new Error('Error inesperado');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                errorMsg.textContent = error.message === 'Credenciales inválidas' ? 'Usuario o contraseña incorrectos' : 'Error de conexión';
+                errorMsg.style.display = 'block';
+            });
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminAuth');
+            authHeader = null;
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+        
+        function formatearFecha(fechaString) {
+            if (!fechaString) return '-';
+            const fecha = new Date(fechaString);
+            return fecha.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
 
         // Cargar datos
         async function cargarReservas(page = 1) {
@@ -404,6 +472,17 @@
             }
         }
 
+        // Función para escapar HTML y prevenir XSS
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         function mostrarReservas(reservas) {
             const container = document.getElementById('tablaReservas');
             
@@ -428,17 +507,17 @@
                     <tbody>
                         ${reservas.map(r => `
                             <tr>
-                                <td><strong>${r.codigo}</strong></td>
-                                <td>${r.nombre} ${r.apellidos}<br><small>${r.email}</small></td>
+                                <td><strong>${escapeHtml(r.codigo)}</strong></td>
+                                <td>${escapeHtml(r.nombre)} ${escapeHtml(r.apellidos)}<br><small>${escapeHtml(r.email)}</small></td>
                                 <td>${formatearFecha(r.fecha)}</td>
-                                <td>${r.hora}</td>
-                                <td>${r.personas}</td>
-                                <td><span class="status-badge status-${r.estado}">${r.estado}</span></td>
+                                <td>${escapeHtml(r.hora)}</td>
+                                <td>${escapeHtml(r.personas)}</td>
+                                <td><span class="status-badge status-${escapeHtml(r.estado)}">${escapeHtml(r.estado)}</span></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-view" onclick='verDetalles(${JSON.stringify(r)})' title="Ver"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-edit" onclick='abrirEdicion(${JSON.stringify(r)})' title="Editar"><i class="fas fa-edit"></i></button>
-                                        ${r.estado === 'confirmada' ? `<button class="btn-cancel" onclick="cancelarReserva('${r.codigo}')" title="Cancelar"><i class="fas fa-times"></i></button>` : ''}
+                                        <button class="btn-view" onclick='verDetalles(${JSON.stringify(r).replace(/'/g, "&#39;")})' title="Ver"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-edit" onclick='abrirEdicion(${JSON.stringify(r).replace(/'/g, "&#39;")})' title="Editar"><i class="fas fa-edit"></i></button>
+                                        ${r.estado === 'confirmada' ? `<button class="btn-cancel" onclick="cancelarReserva('${escapeHtml(r.codigo)}')" title="Cancelar"><i class="fas fa-times"></i></button>` : ''}
                                     </div>
                                 </td>
                             </tr>
@@ -450,7 +529,80 @@
             container.innerHTML = html;
         }
 
-        // ... (verDetalles y cancelarReserva igual que antes) ...
+        function verDetalles(r) {
+            const content = document.getElementById('detailsContent');
+            content.innerHTML = `
+                <div style="display: grid; gap: 10px;">
+                    <p><strong>Código:</strong> ${escapeHtml(r.codigo)}</p>
+                    <p><strong>Estado:</strong> <span class="status-badge status-${escapeHtml(r.estado)}">${escapeHtml(r.estado)}</span></p>
+                    <hr>
+                    <p><strong>Cliente:</strong> ${escapeHtml(r.nombre)} ${escapeHtml(r.apellidos)}</p>
+                    <p><strong>Email:</strong> ${escapeHtml(r.email)}</p>
+                    <p><strong>Teléfono:</strong> ${escapeHtml(r.telefono || '-')}</p>
+                    <hr>
+                    <p><strong>Fecha:</strong> ${formatearFecha(r.fecha)}</p>
+                    <p><strong>Hora:</strong> ${escapeHtml(r.hora)}</p>
+                    <p><strong>Personas:</strong> ${escapeHtml(r.personas)}</p>
+                    <p><strong>Ubicación:</strong> ${escapeHtml(r.ubicacion || 'General')}</p>
+                    <hr>
+                    <p><strong>Comentarios:</strong><br>${escapeHtml(r.comentarios || 'Sin comentarios')}</p>
+                    <p><strong>Fecha Creación:</strong> ${r.created_at ? new Date(r.created_at).toLocaleString() : '-'}</p>
+                </div>
+            `;
+            document.getElementById('detailsModal').style.display = 'flex';
+        }
+
+        async function cancelarReserva(codigo) {
+            if (!confirm('¿Estás seguro de que quieres cancelar esta reserva? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/reservas/${codigo}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ motivo: 'Cancelado por administrador' })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Reserva cancelada correctamente');
+                    cargarReservas(currentPage);
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error de conexión al cancelar');
+            }
+        }
+
+        function actualizarEstadisticas(reservas) {
+            const total = reservas.length;
+            const personas = reservas.reduce((acc, r) => acc + r.personas, 0);
+            
+            // Si estamos filtrando por hoy (comportamiento por defecto)
+            const filtroFecha = document.getElementById('filtroFecha').value;
+            const hoy = new Date().toISOString().split('T')[0];
+            const esHoy = filtroFecha === hoy;
+            
+            if (esHoy) {
+                document.getElementById('totalReservas').textContent = total;
+                document.getElementById('totalPersonas').textContent = personas;
+                document.getElementById('ocupacion').textContent = personas > 0 ? `${personas} p.` : '-';
+                // Para reservasSemana dejamos el placeholder o lo ocultamos si no tenemos ese dato
+                document.getElementById('reservasSemana').parentElement.style.opacity = '0.5';
+            } else {
+                // Si no es hoy, actualizamos con los datos visibles pero indicamos que es filtrado
+                document.getElementById('totalReservas').textContent = total;
+                document.getElementById('totalPersonas').textContent = personas;
+                document.getElementById('ocupacion').textContent = '-';
+            }
+        }
 
         function abrirEdicion(r) {
             document.getElementById('editCodigo').value = r.codigo;
