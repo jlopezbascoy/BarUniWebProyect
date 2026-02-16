@@ -213,6 +213,75 @@
             table { font-size: 14px; }
             th, td { padding: 8px 10px; }
         }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(100%);
+            animation: slideIn 0.3s forwards;
+            border-left: 4px solid #333;
+        }
+
+        .toast.success { border-left-color: #28a745; }
+        .toast.success i { color: #28a745; }
+        
+        .toast.error { border-left-color: #dc3545; }
+        .toast.error i { color: #dc3545; }
+
+        @keyframes slideIn {
+            to { transform: translateX(0); }
+        }
+
+        @keyframes slideOut {
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Estilos específicos para el Modal de Confirmación */
+        .modal-confirm-icon {
+            font-size: 48px;
+            color: #dc3545;
+            margin-bottom: 20px;
+            display: block;
+            text-align: center;
+        }
+        
+        .btn-confirm-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-confirm-cancel {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -275,8 +344,8 @@
             <h2><i class="fas fa-calendar-alt"></i> Gestión de Reservas</h2>
             
             <div class="filter-bar">
-                <input type="date" id="filtroFecha" value="">
-                <select id="filtroEstado">
+                <input type="date" id="filtroFecha" value="" onchange="cargarReservas()">
+                <select id="filtroEstado" onchange="cargarReservas()">
                     <option value="">Todos los estados</option>
                     <option value="confirmada">Confirmada</option>
                     <option value="cancelada">Cancelada</option>
@@ -297,6 +366,22 @@
                 <button id="prevPage" onclick="cambiarPagina(-1)" disabled>Anterior</button>
                 <span id="pageInfo">Página 1 de 1</span>
                 <button id="nextPage" onclick="cambiarPagina(1)" disabled>Siguiente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modal Confirmación -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <i class="fas fa-exclamation-circle modal-confirm-icon"></i>
+            <h3 style="margin-bottom: 10px;">¿Estás seguro?</h3>
+            <p id="confirmMessage" style="margin-bottom: 25px; color: #666;">Esta acción no se puede deshacer.</p>
+            <div style="display: flex; justify-content: center; gap: 15px;">
+                <button type="button" class="btn-confirm-cancel" onclick="document.getElementById('confirmModal').style.display='none'">Cancelar</button>
+                <button type="button" id="btnConfirmAction" class="btn-confirm-danger">Confirmar</button>
             </div>
         </div>
     </div>
@@ -430,7 +515,8 @@
             const busqueda = document.getElementById('filtroBusqueda').value;
 
             try {
-                let url = `${API_URL}/reservas/admin/lista?page=${page}&limit=10&`;
+                // Añadimos timestamp para evitar caché del navegador
+                let url = `${API_URL}/reservas/admin/lista?page=${page}&limit=10&_t=${Date.now()}&`;
                 if (fecha) url += `fecha=${fecha}&`;
                 if (estado) url += `estado=${estado}&`;
                 if (busqueda) url += `busqueda=${encodeURIComponent(busqueda)}&`;
@@ -456,8 +542,10 @@
                     document.getElementById('prevPage').disabled = currentPage <= 1;
                     document.getElementById('nextPage').disabled = currentPage >= totalPages;
 
-                    // Si estamos en la página 1, actualizar estadísticas generales
-                    if (currentPage === 1) actualizarEstadisticas(result.data); 
+                    // Actualizar estadísticas con datos reales del backend
+                    if (result.stats) {
+                        actualizarEstadisticasBackend(result.stats);
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -531,56 +619,225 @@
 
         function verDetalles(r) {
             const content = document.getElementById('detailsContent');
+            
+            // Helper para capitalizar
+            const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '-';
+            
             content.innerHTML = `
-                <div style="display: grid; gap: 10px;">
-                    <p><strong>Código:</strong> ${escapeHtml(r.codigo)}</p>
-                    <p><strong>Estado:</strong> <span class="status-badge status-${escapeHtml(r.estado)}">${escapeHtml(r.estado)}</span></p>
-                    <hr>
-                    <p><strong>Cliente:</strong> ${escapeHtml(r.nombre)} ${escapeHtml(r.apellidos)}</p>
-                    <p><strong>Email:</strong> ${escapeHtml(r.email)}</p>
-                    <p><strong>Teléfono:</strong> ${escapeHtml(r.telefono || '-')}</p>
-                    <hr>
-                    <p><strong>Fecha:</strong> ${formatearFecha(r.fecha)}</p>
-                    <p><strong>Hora:</strong> ${escapeHtml(r.hora)}</p>
-                    <p><strong>Personas:</strong> ${escapeHtml(r.personas)}</p>
-                    <p><strong>Ubicación:</strong> ${escapeHtml(r.ubicacion || 'General')}</p>
-                    <hr>
-                    <p><strong>Comentarios:</strong><br>${escapeHtml(r.comentarios || 'Sin comentarios')}</p>
-                    <p><strong>Fecha Creación:</strong> ${r.created_at ? new Date(r.created_at).toLocaleString() : '-'}</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="grid-column: 1 / -1; background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                        <p><strong>Código:</strong> ${escapeHtml(r.codigo)}</p>
+                        <p><strong>Estado:</strong> <span class="status-badge status-${escapeHtml(r.estado)}">${escapeHtml(r.estado)}</span></p>
+                    </div>
+
+                    <div>
+                        <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: var(--color-primary);">Cliente</h4>
+                        <p><strong>Nombre:</strong> ${escapeHtml(r.nombre)}</p>
+                        <p><strong>Apellidos:</strong> ${escapeHtml(r.apellidos)}</p>
+                        <p><strong>Email:</strong> ${escapeHtml(r.email)}</p>
+                        <p><strong>Teléfono:</strong> ${escapeHtml(r.telefono || '-')}</p>
+                    </div>
+
+                    <div>
+                        <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: var(--color-primary);">Reserva</h4>
+                        <p><strong>Fecha:</strong> ${formatearFecha(r.fecha)}</p>
+                        <p><strong>Hora:</strong> ${escapeHtml(r.hora)}</p>
+                        <p><strong>Personas:</strong> ${escapeHtml(r.personas)}</p>
+                        <p><strong>Ubicación:</strong> ${capitalize(escapeHtml(r.ubicacion))}</p>
+                    </div>
+
+                    <div style="grid-column: 1 / -1;">
+                        <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: var(--color-primary);">Detalles Adicionales</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <p><strong>Ocasión Especial:</strong></p>
+                                <p>${capitalize(escapeHtml(r.ocasion)) || 'Ninguna'}</p>
+                            </div>
+                            <div>
+                                <p><strong>Alergias / Intolerancias:</strong></p>
+                                <p style="color: ${r.alergias ? '#d9534f' : 'inherit'};">${escapeHtml(r.alergias) || 'Ninguna'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="grid-column: 1 / -1;">
+                        <p><strong>Comentarios Adicionales:</strong></p>
+                        <p style="background: #fff; padding: 10px; border: 1px solid #eee; border-radius: 4px; margin-top: 5px;">
+                            ${escapeHtml(r.comentarios) || 'Sin comentarios'}
+                        </p>
+                    </div>
+                    
+                    <div style="grid-column: 1 / -1; font-size: 0.85em; color: #666; text-align: right; margin-top: 10px;">
+                        Reserva creada el: ${r.created_at ? new Date(r.created_at).toLocaleString() : '-'}
+                    </div>
                 </div>
             `;
             document.getElementById('detailsModal').style.display = 'flex';
         }
 
-        async function cancelarReserva(codigo) {
-            if (!confirm('¿Estás seguro de que quieres cancelar esta reserva? Esta acción no se puede deshacer.')) {
-                return;
+        // Sistema de Notificaciones
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer') || document.body;
+            const toast = document.createElement('div');
+            
+            // Icono
+            let icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
+            
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            // Si el contenedor no existe, créalo
+            if (!document.getElementById('toastContainer')) {
+                const newContainer = document.createElement('div');
+                newContainer.id = 'toastContainer';
+                newContainer.className = 'toast-container';
+                document.body.appendChild(newContainer);
+                newContainer.appendChild(toast);
+            } else {
+                container.appendChild(toast);
             }
+
+            // Animación de salida
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        function openConfirm(message, onConfirm) {
+            const modal = document.getElementById('confirmModal');
+            const msgElem = document.getElementById('confirmMessage');
+            const confirmBtn = document.getElementById('btnConfirmAction');
+            
+            // Reset y configuración
+            msgElem.textContent = message;
+            
+            // Clonamos el botón para eliminar listeners anteriores
+            const newBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+            
+            newBtn.addEventListener('click', async () => {
+                modal.style.display = 'none';
+                await onConfirm();
+            });
+            
+            modal.style.display = 'flex';
+        }
+
+        async function cancelarReserva(codigo) {
+            openConfirm('¿Estás seguro de que quieres cancelar esta reserva? Esta acción no se puede deshacer.', async () => {
+                try {
+                    const response = await fetch(`${API_URL}/reservas/${codigo}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': authHeader,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ motivo: 'Cancelado por administrador' })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showToast('Reserva cancelada correctamente', 'success');
+                        cargarReservas(currentPage);
+                    } else {
+                        showToast('Error: ' + result.message, 'error');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    showToast('Error de conexión al cancelar', 'error');
+                }
+            });
+        }
+
+        async function guardarEdicion(e) {
+            e.preventDefault();
+            const codigo = document.getElementById('editCodigo').value;
+            const data = {
+                nombre: document.getElementById('editNombre').value,
+                apellidos: document.getElementById('editApellidos').value,
+                email: document.getElementById('editEmail').value,
+                fecha: document.getElementById('editFecha').value,
+                hora: document.getElementById('editHora').value,
+                personas: document.getElementById('editPersonas').value
+            };
 
             try {
                 const response = await fetch(`${API_URL}/reservas/${codigo}`, {
-                    method: 'DELETE',
+                    method: 'PUT',
                     headers: {
                         'Authorization': authHeader,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ motivo: 'Cancelado por administrador' })
+                    body: JSON.stringify(data)
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('Reserva cancelada correctamente');
+                    showToast('Reserva actualizada correctamente', 'success');
+                    document.getElementById('editModal').style.display = 'none';
                     cargarReservas(currentPage);
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('Error: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error(error);
-                alert('Error de conexión al cancelar');
+                showToast('Error de conexión', 'error');
+            }
+        }
+        
+        async function descargarCSV(url) {
+            try {
+                showToast('Generando CSV...', 'success');
+                const response = await fetch(url, {
+                    headers: { 'Authorization': authHeader }
+                });
+                
+                if (response.status === 401) {
+                    showToast('Sesión expirada', 'error');
+                    logout();
+                    return;
+                }
+
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `reservas-${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch (error) {
+                console.error(error);
+                showToast('Error al descargar CSV', 'error');
             }
         }
 
+        // Nueva función para usar datos del backend
+        function actualizarEstadisticasBackend(stats) {
+            const filtroFecha = document.getElementById('filtroFecha').value;
+            const hoy = new Date().toISOString().split('T')[0];
+            const esHoy = filtroFecha === hoy;
+            
+            // Si estamos viendo hoy, mostramos los datos reales.
+            // Si estamos viendo otro día, mostramos los datos de ESE día pero indicando contexto
+            
+            document.getElementById('totalReservas').textContent = stats.totalReservas;
+            document.getElementById('totalPersonas').textContent = stats.totalPersonas;
+            
+            if (esHoy) {
+                document.getElementById('ocupacion').textContent = stats.totalPersonas > 0 ? `${stats.totalPersonas} p.` : '-';
+                // Placeholder para estadísticas semanales (requeriría otra query)
+                document.getElementById('reservasSemana').parentElement.style.opacity = '0.5';
+            } else {
+                // Si es otro día, mostramos los datos de ese día pero sin "ocupación actual"
+                document.getElementById('ocupacion').textContent = '-';
+            }
+        }
+
+        // DEPRECATED: Se mantiene por si falla la carga del backend temporalmente
         function actualizarEstadisticas(reservas) {
             const total = reservas.length;
             const personas = reservas.reduce((acc, r) => acc + r.personas, 0);
@@ -640,15 +897,15 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('Reserva actualizada correctamente');
+                    showToast('Reserva actualizada correctamente');
                     document.getElementById('editModal').style.display = 'none';
                     cargarReservas(currentPage);
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('Error: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error(error);
-                alert('Error de conexión');
+                showToast('Error de conexión', 'error');
             }
         }
 
@@ -671,12 +928,13 @@
 
         async function descargarCSV(url) {
             try {
+                showToast('Generando CSV...', 'success');
                 const response = await fetch(url, {
                     headers: { 'Authorization': authHeader }
                 });
                 
                 if (response.status === 401) {
-                    alert('Sesión expirada');
+                    showToast('Sesión expirada', 'error');
                     logout();
                     return;
                 }
@@ -691,7 +949,7 @@
                 a.remove();
             } catch (error) {
                 console.error(error);
-                alert('Error al descargar CSV');
+                showToast('Error al descargar CSV', 'error');
             }
         }
     </script>

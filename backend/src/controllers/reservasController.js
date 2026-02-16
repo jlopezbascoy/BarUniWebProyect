@@ -370,6 +370,11 @@ async function listarReservas(req, res, next) {
         
         const resultado = await Reserva.listar(filtros);
         
+        // Obtener estadísticas del día (para dashboard)
+        // Usamos la fecha filtrada o la de hoy
+        const fechaStats = fecha || new Date().toISOString().split('T')[0];
+        const stats = await Reserva.obtenerEstadisticasDia(fechaStats);
+
         // Exportar a CSV
         if (format === 'csv') {
             const fields = ['id', 'codigo', 'nombre', 'apellidos', 'email', 'telefono', 'fecha', 'hora', 'personas', 'estado', 'ubicacion', 'comentarios'];
@@ -402,7 +407,8 @@ async function listarReservas(req, res, next) {
                 page: resultado.page,
                 totalPages: resultado.totalPages,
                 limit: parseInt(limit) || 10
-            }
+            },
+            stats: stats
         });
         
     } catch (error) {

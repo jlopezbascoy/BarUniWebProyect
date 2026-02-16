@@ -152,7 +152,7 @@ class Reserva {
     }
 
     /**
-     * Cancelar reserva (Borrado físico con respaldo en auditoría)
+     * Cancelar reserva (Soft delete - Actualizar estado a 'cancelada')
      * @param {string} codigo
      * @param {string} motivo - Opcional
      * @param {Object} reqInfo - IP y UserAgent (Opcional)
@@ -160,48 +160,34 @@ class Reserva {
      */
     static async cancelar(codigo, motivo = null, reqInfo = {}) {
         try {
-            // 1. Obtener la reserva completa antes de borrar
-            const reserva = await get('SELECT * FROM reservas WHERE codigo = ?', [codigo]);
+            // 1. Verificar existencia y estado
+            const reserva = await get('SELECT id, estado FROM reservas WHERE codigo = ?', [codigo]);
             
             if (!reserva) {
                 return false;
             }
 
-            // 2. Insertar en audit_logs (guardar historial completo)
-            const auditSql = `
-                INSERT INTO audit_logs (
-                    tabla, registro_id, accion, 
-                    datos_anteriores, datos_nuevos, 
-                    ip_address, user_agent
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            if (reserva.estado === 'cancelada') {
+                return true; // Ya está cancelada
+            }
+
+            // 2. Actualizar estado (Soft Delete)
+            // El trigger 'audit_reservas_cancel' se encargará de registrar el evento en audit_logs
+            const sql = `
+                UPDATE reservas 
+                SET estado = 'cancelada', 
+                    cancel_reason = ?, 
+                    cancelled_at = CURRENT_TIMESTAMP 
+                WHERE codigo = ?
             `;
             
-            const datosAnteriores = JSON.stringify(reserva);
-            const datosNuevos = JSON.stringify({ 
-                estado: 'cancelada', 
-                cancel_reason: motivo,
-                cancelled_at: new Date().toISOString()
-            });
-
-            await run(auditSql, [
-                'reservas',
-                reserva.id,
-                'CANCEL',
-                datosAnteriores,
-                datosNuevos,
-                reqInfo.ip || null,
-                reqInfo.userAgent || null
-            ]);
-            
-            // 3. Borrar físicamente de la tabla reservas
-            const sql = `DELETE FROM reservas WHERE codigo = ?`;
-            const result = await run(sql, [codigo]);
+            const result = await run(sql, [motivo, codigo]);
             
             if (result.changes === 0) {
                 return false;
             }
             
-            logger.info('Reserva cancelada y archivada', { codigo, motivo });
+            logger.info('Reserva cancelada (estado actualizado)', { codigo, motivo });
             return true;
         } catch (error) {
             logger.error('Error al cancelar reserva', { error: error.message, codigo });
@@ -435,6 +421,27 @@ class Reserva {
         } catch (error) {
             logger.error('Error al listar reservas', { error: error.message });
             throw error;
+        }
+    }
+
+    /**
+     * Obtener estadísticas del día (Confirmadas)
+     * @param {string} fecha
+     * @returns {Promise<Object>}
+     */
+    static async obtenerEstadisticasDia(fecha) {
+        try {
+            const sql = `
+                SELECT 
+                    COUNT(*) as totalReservas,
+                    COALESCE(SUM(personas), 0) as totalPersonas
+                FROM reservas 
+                WHERE fecha = ? AND estado = 'confirmada'
+            `;
+            return await get(sql, [fecha]);
+        } catch (error) {
+            logger.error('Error al obtener estadísticas del día', { error: error.message });
+            return { totalReservas: 0, totalPersonas: 0 };
         }
     }
 
