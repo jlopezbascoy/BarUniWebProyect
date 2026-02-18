@@ -10,7 +10,11 @@ package-lock.json
 # Base de Datos
 *.db
 *.sqlite
+*.db-shm
+*.db-wal
 backend/database/*.db
+backend/database/*.db-shm
+backend/database/*.db-wal
 backend/backups/
 
 # Logs

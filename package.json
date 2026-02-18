@@ -1,4 +1,14 @@
 {
+  "name": "parrillada-alcume-root",
+  "version": "1.0.0",
+  "description": "Root project for Parrillada Alcume",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "test": "cd backend && npm test",
+    "test:watch": "cd backend && npm test -- --watch",
+    "install-all": "npm install && cd backend && npm install"
+  },
   "dependencies": {
     "nodemailer": "^8.0.1"
   }

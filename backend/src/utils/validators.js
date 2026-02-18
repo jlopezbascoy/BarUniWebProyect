@@ -42,10 +42,12 @@ function isValidNombre(nombre) {
     
     const trimmed = nombre.trim();
     
-    // Letras, números, espacios y caracteres comunes (incluyendo paréntesis y puntos para empresas)
-    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s'-\(\)\.]{2,50}$/;
+    // Nombres de personas: letras, espacios, guiones y apóstrofes (para O'Connor, etc.)
+    // NO números, ni símbolos raros
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'\-]+$/;
     
-    return nameRegex.test(trimmed) && 
+    return trimmed.length >= 2 && trimmed.length <= 50 &&
+           nameRegex.test(trimmed) && 
            !validator.contains(trimmed, '<script') &&
            !validator.contains(trimmed, 'javascript:');
 }
